@@ -23,9 +23,9 @@ Die "Gesamtausgabe" liegt unter (per Test am 08.09.2026 verifiziert):
 https://www.wz-net.de/sites/default/files/content/epaper/<JJJJ>/<JJJJMMTT>_wz.pdf
 ```
 
-Also **ohne** das ursprünglich vermutete `Walsroderzeitung_`-Präfix. Lokal und in
-der Nextcloud wird die Datei trotzdem als `Walsroderzeitung_<JJJJMMTT>_wz.pdf`
-abgelegt (sprechender Name, siehe `SAVE_NAME_TMPL` in `download_wz.py`).
+Also **ohne** das ursprünglich vermutete `Walsroderzeitung_`-Präfix. Die Datei
+wird unter ihrem Originalnamen `<JJJJMMTT>_wz.pdf` abgelegt (lokal wie in der
+Nextcloud; anpassbar über `SAVE_NAME_TMPL` in `download_wz.py`).
 Sonntags gibt es keine Ausgabe (HTTP 404) – das Script überspringt den Tag.
 
 ## Installation (Linux-Server)

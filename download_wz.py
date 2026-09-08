@@ -48,8 +48,8 @@ PDF_URL_TMPL = (
     "https://www.wz-net.de/sites/default/files/content/epaper/"
     "{year}/{ymd}_wz.pdf"
 )
-# So heisst die Datei nachher lokal und in der Nextcloud (sprechender Name).
-SAVE_NAME_TMPL = "Walsroderzeitung_{ymd}_wz.pdf"
+# Datei wird unter ihrem Originalnamen abgelegt (lokal wie in der Nextcloud).
+SAVE_NAME_TMPL = "{ymd}_wz.pdf"
 PDF_MAGIC = b"%PDF-"
 UA = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
