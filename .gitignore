@@ -1,5 +1,7 @@
-state.json
-.env
-__pycache__/
 *.pyc
 .DS_Store
+.env
+.local-test/
+.venv/
+__pycache__/
+state.json

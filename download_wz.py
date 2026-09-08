@@ -42,10 +42,14 @@ except ImportError:
 
 LOGIN_URL = "https://mein.wz-net.de/login"
 WARMUP_URL = "https://www.wz-net.de/"
+# Reale "Gesamtausgabe" (ermittelt aus der E-Paper-Seite): OHNE "Walsroderzeitung_"-Praefix.
+# Beispiel: .../content/epaper/2026/20260908_wz.pdf
 PDF_URL_TMPL = (
     "https://www.wz-net.de/sites/default/files/content/epaper/"
-    "{year}/Walsroderzeitung_{ymd}_wz.pdf"
+    "{year}/{ymd}_wz.pdf"
 )
+# So heisst die Datei nachher lokal und in der Nextcloud (sprechender Name).
+SAVE_NAME_TMPL = "Walsroderzeitung_{ymd}_wz.pdf"
 PDF_MAGIC = b"%PDF-"
 UA = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
@@ -161,6 +165,7 @@ def _do_login(page, username: str, password: str) -> None:
 
 
 def fetch_pdf(state_file: Path, username: str, password: str, pdf_url: str, headful: bool) -> bytes:
+    state_file.parent.mkdir(parents=True, exist_ok=True)
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=not headful)
         context = _new_context(browser, state_file)
@@ -252,7 +257,7 @@ def main(argv=None) -> int:
 
     ymd = target.strftime("%Y%m%d")
     pdf_url = PDF_URL_TMPL.format(year=target.strftime("%Y"), ymd=ymd)
-    filename = f"Walsroderzeitung_{ymd}_wz.pdf"
+    filename = SAVE_NAME_TMPL.format(ymd=ymd)
 
     username = need("WZ_USERNAME")
     password = need("WZ_PASSWORD")
