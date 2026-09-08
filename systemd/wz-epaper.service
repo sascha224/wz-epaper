@@ -1,0 +1,16 @@
+[Unit]
+Description=Walsroder Zeitung E-Paper laden und nach Nextcloud hochladen
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=wz
+WorkingDirectory=/opt/wz-epaper
+ExecStart=/opt/wz-epaper/.venv/bin/python /opt/wz-epaper/download_wz.py
+# Kein Endlos-Retry im Dienst: die Retry-Schleife im Script (WZ_RETRIES) reicht.
+TimeoutStartSec=3600
+Nice=10
+
+[Install]
+WantedBy=multi-user.target

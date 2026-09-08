@@ -1,0 +1,13 @@
+[Unit]
+Description=Walsroder Zeitung E-Paper taeglich laden
+
+[Timer]
+# Montag bis Samstag um 06:00 (Sonntag erscheint keine Ausgabe).
+OnCalendar=Mon..Sat *-*-* 06:00:00
+# Verpasste Laeufe (Server war aus) nachholen.
+Persistent=true
+# Etwas Streuung, um Punktlast zu vermeiden.
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target
