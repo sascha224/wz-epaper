@@ -42,7 +42,7 @@ except ImportError:
 
 LOGIN_URL = "https://mein.wz-net.de/login"
 WARMUP_URL = "https://www.wz-net.de/"
-# Reale "Gesamtausgabe" (ermittelt aus der E-Paper-Seite): OHNE "Walsroderzeitung_"-Praefix.
+# "Gesamtausgabe" (Link von der E-Paper-Seite).
 # Beispiel: .../content/epaper/2026/20260908_wz.pdf
 PDF_URL_TMPL = (
     "https://www.wz-net.de/sites/default/files/content/epaper/"
