@@ -4,7 +4,7 @@ download_wz.py — Walsroder Zeitung E-Paper (PDF) automatisch laden und nach Ne
 
 Ablauf:
   1. Zieldatum bestimmen (Standard: heute; Sonntag wird uebersprungen, keine Ausgabe).
-  2. PDF-URL bauen:  https://www.wz-net.de/sites/default/files/content/epaper/<JJJJ>/Walsroderzeitung_<JJJJMMTT>_wz.pdf
+  2. PDF-URL bauen:  https://www.wz-net.de/sites/default/files/content/epaper/<JJJJ>/<JJJJMMTT>_wz.pdf
   3. Mit gecachter Browser-Session versuchen, die PDF zu laden.
      Wenn nicht eingeloggt / Paywall greift -> ueber plenigo (mein.wz-net.de/login) anmelden,
      Session in state.json cachen, erneut laden.
@@ -238,15 +238,18 @@ def parse_args(argv):
 
 
 def main(argv=None) -> int:
+    # .env zuerst laden, damit die argparse-Defaults (WZ_RETRIES/WZ_RETRY_WAIT)
+    # die .env-Werte sehen. Echte Umgebungsvariablen haben Vorrang (setdefault),
+    # explizite CLI-Flags gewinnen ueber beides.
+    here = Path(__file__).resolve().parent
+    load_env_file(here / ".env")
+
     args = parse_args(argv or sys.argv[1:])
     logging.basicConfig(
         level=logging.DEBUG if args.verbose else logging.INFO,
         format="%(asctime)s %(levelname)-7s %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
-
-    here = Path(__file__).resolve().parent
-    load_env_file(here / ".env")
 
     target = (
         dt.date.fromisoformat(args.date) if args.date else dt.date.today()

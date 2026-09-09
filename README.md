@@ -17,7 +17,7 @@ bei abgelaufener Session neu eingeloggt.
 
 ## E-Paper-URL
 
-Die "Gesamtausgabe" liegt unter (per Test am 08.09.2026 verifiziert):
+Die "Gesamtausgabe" liegt unter (per Test am 08./09.09.2026 verifiziert):
 
 ```
 https://www.wz-net.de/sites/default/files/content/epaper/<JJJJ>/<JJJJMMTT>_wz.pdf
@@ -80,7 +80,13 @@ erneuten Login durchlaufen.
 
 ## Automatisieren
 
-### Variante A – systemd-Timer (empfohlen)
+Beide Varianten funktionieren. **systemd-Timer**, wenn der Server nachts auch mal
+aus/im Standby ist (`Persistent=true` holt den 06:00-Lauf nach) und du das Log
+über `journalctl` sehen willst. **cron**, wenn du es simpel magst und der Server
+ohnehin durchläuft – `MAILTO` schickt bei Fehler-Exit sofort eine Mail, ohne
+weiteres Setup. Details unten.
+
+### Variante A – systemd-Timer
 
 ```bash
 sudo cp systemd/wz-epaper.service systemd/wz-epaper.timer /etc/systemd/system/
@@ -92,8 +98,10 @@ journalctl -u wz-epaper.service -f          # Log ansehen
 sudo systemctl start wz-epaper.service      # manuell auslösen
 ```
 
-Der Service erwartet die venv unter `/opt/wz-epaper/.venv` und die `.env` im
-`WorkingDirectory`. `User=` ggf. anpassen.
+Der Service erwartet die venv unter `/opt/wz-epaper/.venv` und die `.env` neben
+dem Script (`/opt/wz-epaper/.env`). `User=` ggf. anpassen. `TimeoutStartSec`
+muss größer bleiben als `WZ_RETRIES × WZ_RETRY_WAIT` (Default 1 h), sonst wird
+ein wartender Lauf abgeschnitten.
 
 ### Variante B – cron
 
@@ -125,6 +133,10 @@ crontab -e
 und im sichtbaren Browser prüfen, welche Feld-IDs/Buttons sich geändert haben
 (`_do_login()` in `download_wz.py` anpassen: aktuell `#login_form__username`,
 `#login_form__password`, Button „Anmelden").
+
+`--headful` braucht eine grafische Umgebung. Auf einem Server ohne Desktop
+entweder lokal auf dem Arbeitsrechner testen oder mit `xvfb-run` starten:
+`xvfb-run .venv/bin/python download_wz.py --headful -v`.
 
 ## Dateien
 

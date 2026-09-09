@@ -9,7 +9,8 @@ User=wz
 WorkingDirectory=/opt/wz-epaper
 ExecStart=/opt/wz-epaper/.venv/bin/python /opt/wz-epaper/download_wz.py
 # Kein Endlos-Retry im Dienst: die Retry-Schleife im Script (WZ_RETRIES) reicht.
-TimeoutStartSec=3600
+# Muss groesser sein als WZ_RETRIES * WZ_RETRY_WAIT (Default 6 * 600s = 1h) plus Puffer.
+TimeoutStartSec=7200
 Nice=10
 
 [Install]
