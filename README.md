@@ -78,37 +78,17 @@ Pflichtfelder: `WZ_USERNAME`, `WZ_PASSWORD`, `NC_WEBDAV_URL`, `NC_USERNAME`, `NC
 Beim ersten Lauf wird `state.json` angelegt. Danach sollten Folgeläufe ohne
 erneuten Login durchlaufen.
 
-## Automatisieren
-
-Beide Varianten funktionieren. **systemd-Timer**, wenn der Server nachts auch mal
-aus/im Standby ist (`Persistent=true` holt den 06:00-Lauf nach) und du das Log
-über `journalctl` sehen willst. **cron**, wenn du es simpel magst und der Server
-ohnehin durchläuft – `MAILTO` schickt bei Fehler-Exit sofort eine Mail, ohne
-weiteres Setup. Details unten.
-
-### Variante A – systemd-Timer
-
-```bash
-sudo cp systemd/wz-epaper.service systemd/wz-epaper.timer /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable --now wz-epaper.timer
-
-systemctl list-timers wz-epaper.timer      # nächste Ausführung prüfen
-journalctl -u wz-epaper.service -f          # Log ansehen
-sudo systemctl start wz-epaper.service      # manuell auslösen
-```
-
-Der Service erwartet die venv unter `/opt/wz-epaper/.venv` und die `.env` neben
-dem Script (`/opt/wz-epaper/.env`). `User=` ggf. anpassen. `TimeoutStartSec`
-muss größer bleiben als `WZ_RETRIES × WZ_RETRY_WAIT` (Default 1 h), sonst wird
-ein wartender Lauf abgeschnitten.
-
-### Variante B – cron
+## Automatisieren (cron)
 
 ```bash
 crontab -e
 # Inhalt aus crontab.example übernehmen
 ```
+
+`crontab.example` startet Mo–Sa um 06:00, hängt die Ausgabe an
+`/opt/wz-epaper/wz-epaper.log` an (Pfad anpassbar) und schickt bei Fehler-Exit
+eine Mail (`MAILTO` setzen). Das Script wiederholt selbst (`WZ_RETRIES`), falls
+die Ausgabe morgens noch nicht online ist.
 
 ## Verhalten / Details
 
@@ -120,7 +100,7 @@ crontab -e
   eingeloggt.
 - Existiert die lokale Datei schon (`WZ_LOCAL_DIR` gesetzt), wird der Download
   übersprungen – außer mit `--force`.
-- Exit-Codes siehe Kopf von `download_wz.py` (cron/systemd melden Fehler).
+- Exit-Codes siehe Kopf von `download_wz.py` (cron meldet Fehler-Exit per Mail).
 
 ## Wenn der Login bricht
 
@@ -146,5 +126,4 @@ entweder lokal auf dem Arbeitsrechner testen oder mit `xvfb-run` starten:
 | `.env` / `.env.example` | Zugangsdaten & Optionen |
 | `requirements.txt` | Python-Abhängigkeiten |
 | `state.json` | gecachte Browser-Session (wird angelegt) |
-| `systemd/` | service + timer |
-| `crontab.example` | cron-Alternative |
+| `crontab.example` | cron-Eintrag zum Übernehmen |

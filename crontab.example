@@ -2,7 +2,8 @@
 # "crontab -e" als der Nutzer, unter dem das Script laufen soll.
 # Mo-Sa 06:00. Das Script wiederholt selbst (WZ_RETRIES), falls die Ausgabe noch nicht online ist.
 # Ausgabe landet im Log; bei Fehler-Exit schickt cron eine Mail (MAILTO setzen).
+# Log-Pfad ggf. anpassen - der ausfuehrende Nutzer muss dort schreiben duerfen.
 
 MAILTO=dein-name@example.de
 
-0 6 * * 1-6  cd /opt/wz-epaper && /opt/wz-epaper/.venv/bin/python download_wz.py >> /var/log/wz-epaper.log 2>&1
+0 6 * * 1-6  cd /opt/wz-epaper && /opt/wz-epaper/.venv/bin/python download_wz.py >> /opt/wz-epaper/wz-epaper.log 2>&1
