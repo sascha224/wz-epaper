@@ -27,30 +27,44 @@ Die Datei wird unter ihrem Originalnamen `<JJJJMMTT>_wz.pdf` abgelegt (lokal wie
 in der Nextcloud; anpassbar über `SAVE_NAME_TMPL` in `download_wz.py`).
 Sonntags gibt es keine Ausgabe (HTTP 404) – das Script überspringt den Tag.
 
-## Installation (Linux-Server)
+## Installation (Ubuntu-Server)
+
+Geprüft für Ubuntu Server 22.04 / 24.04.
 
 ```bash
-sudo useradd -r -m -d /opt/wz-epaper wz
-sudo -u wz -H bash
+# 1. Systempakete (auf Ubuntu Server nicht vorinstalliert)
+sudo apt update
+sudo apt install -y git python3-venv python3-pip
+
+# 2. Code holen. Das Repo ist privat -> Git fragt nach Benutzername + Personal
+#    Access Token. Alternativ das Verzeichnis per scp/rsync hochladen.
+sudo git clone https://github.com/sascha224/wz-epaper.git /opt/wz-epaper
+
+# 3. Dienst-Benutzer anlegen und Verzeichnis uebergeben
+sudo useradd --system --home-dir /opt/wz-epaper --shell /usr/sbin/nologin wz
+sudo chown -R wz:wz /opt/wz-epaper
 cd /opt/wz-epaper
 
-git clone <dieses-verzeichnis> .    # oder Dateien herkopieren
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-.venv/bin/playwright install --with-deps chromium   # lädt Browser + Systemlibs
+# 4. venv + Python-Abhaengigkeiten (als wz)
+sudo -u wz python3 -m venv .venv
+sudo -u wz .venv/bin/pip install --upgrade pip
+sudo -u wz .venv/bin/pip install -r requirements.txt
+
+# 5. Chromium fuer Playwright: System-Libs als root, Browser als wz
+sudo .venv/bin/playwright install-deps chromium
+sudo -u wz .venv/bin/playwright install chromium
 ```
 
-> `--with-deps` braucht einmalig root für die Systempakete. Ohne root:
-> `.venv/bin/playwright install chromium` und die
-> [benötigten Libs](https://playwright.dev/python/docs/browsers#install-system-dependencies)
-> selbst nachinstallieren.
+> Läuft ohnehin alles als root, gehen Schritt 4/5 kürzer mit
+> `.venv/bin/playwright install --with-deps chromium` (zieht die System-Libs
+> per apt gleich mit). `--with-deps` braucht zwingend root.
 
 ## Konfiguration
 
 ```bash
-cp .env.example .env
-chmod 600 .env
-nano .env
+sudo -u wz cp .env.example .env
+sudo -u wz chmod 600 .env
+sudo -u wz nano .env
 ```
 
 Pflichtfelder: `WZ_USERNAME`, `WZ_PASSWORD`, `NC_WEBDAV_URL`, `NC_USERNAME`, `NC_PASSWORD`.
@@ -64,30 +78,32 @@ Pflichtfelder: `WZ_USERNAME`, `WZ_PASSWORD`, `NC_WEBDAV_URL`, `NC_USERNAME`, `NC
 ## Test
 
 ```bash
-# Sichtbarer Browser, einmaliger Lauf für heute, ohne Upload:
-.venv/bin/python download_wz.py --headful --no-upload -v
+# Headless-Testlauf für heute, ohne Upload:
+sudo -u wz .venv/bin/python download_wz.py --no-upload -v
 
 # Bestimmtes Datum:
-.venv/bin/python download_wz.py --date 2026-09-08 -v
+sudo -u wz .venv/bin/python download_wz.py --date 2026-09-08 --no-upload -v
 
 # Voller Lauf inkl. Nextcloud:
-.venv/bin/python download_wz.py -v
+sudo -u wz .venv/bin/python download_wz.py -v
 ```
 
 Beim ersten Lauf wird `state.json` angelegt. Danach sollten Folgeläufe ohne
-erneuten Login durchlaufen.
+erneuten Login durchlaufen. (`--headful` nur mit grafischer Umgebung, siehe
+unten.)
 
 ## Automatisieren (cron)
 
 ```bash
-crontab -e
+sudo crontab -u wz -e
 # Inhalt aus crontab.example übernehmen
 ```
 
 `crontab.example` startet Mo–Sa um 06:00, hängt die Ausgabe an
 `/opt/wz-epaper/wz-epaper.log` an (Pfad anpassbar) und schickt bei Fehler-Exit
-eine Mail (`MAILTO` setzen). Das Script wiederholt selbst (`WZ_RETRIES`), falls
-die Ausgabe morgens noch nicht online ist.
+eine Mail (`MAILTO` setzen; braucht einen MTA wie `postfix` oder `msmtp`). Das
+Script wiederholt selbst (`WZ_RETRIES`), falls die Ausgabe morgens noch nicht
+online ist. Der cron-Dienst läuft auf Ubuntu per Default (`systemctl status cron`).
 
 ## Verhalten / Details
 
@@ -114,8 +130,12 @@ und im sichtbaren Browser prüfen, welche Feld-IDs/Buttons sich geändert haben
 `#login_form__password`, Button „Anmelden").
 
 `--headful` braucht eine grafische Umgebung. Auf einem Server ohne Desktop
-entweder lokal auf dem Arbeitsrechner testen oder mit `xvfb-run` starten:
-`xvfb-run .venv/bin/python download_wz.py --headful -v`.
+entweder lokal auf dem Arbeitsrechner testen oder mit `xvfb` starten:
+
+```bash
+sudo apt install -y xvfb
+sudo -u wz xvfb-run .venv/bin/python download_wz.py --headful -v
+```
 
 ## Dateien
 
