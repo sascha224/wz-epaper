@@ -298,9 +298,15 @@ def main(argv=None) -> int:
 
         log.info("PDF geladen: %d Bytes", len(pdf_bytes))
         if local_path:
-            local_dir.mkdir(parents=True, exist_ok=True)
-            local_path.write_bytes(pdf_bytes)
-            log.info("Lokal gespeichert: %s", local_path)
+            # Lokale Kopie ist optional – ein Fehler hier (z. B. Verzeichnis
+            # gehoert root) darf den Nextcloud-Upload nicht verhindern.
+            try:
+                local_dir.mkdir(parents=True, exist_ok=True)
+                local_path.write_bytes(pdf_bytes)
+                log.info("Lokal gespeichert: %s", local_path)
+            except OSError as e:
+                log.warning("Lokale Kopie nach %s nicht moeglich (%s) – fahre fort.",
+                            local_dir, e)
 
     # ---- Upload ----
     if args.no_upload:
