@@ -105,6 +105,24 @@ eine Mail (`MAILTO` setzen; braucht einen MTA wie `postfix` oder `msmtp`). Das
 Script wiederholt selbst (`WZ_RETRIES`), falls die Ausgabe morgens noch nicht
 online ist. Der cron-Dienst läuft auf Ubuntu per Default (`systemctl status cron`).
 
+### Zeitzone
+
+cron nutzt die **Systemzeitzone**. Viele Server (Cloud/VPS) stehen auf **UTC** –
+dann feuert `0 6` um 06:00 UTC, nicht lokal. Prüfen und umstellen:
+
+```bash
+timedatectl                                  # aktuelle Zone
+sudo timedatectl set-timezone Europe/Berlin
+sudo systemctl restart cron                  # cron liest die Zone beim Start neu
+```
+
+Alternativ nur für diesen Job, System bleibt auf UTC – in die crontab **über**
+die Job-Zeile:
+
+```
+CRON_TZ=Europe/Berlin
+```
+
 ## Verhalten / Details
 
 - **Sonntag** wird übersprungen (keine Ausgabe). Mit `--sunday` erzwingbar.
