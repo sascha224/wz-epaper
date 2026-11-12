@@ -123,20 +123,20 @@ def _try_download(context, pdf_url: str):
 
 
 def _do_login(page, username: str, password: str) -> None:
-    log.info("Melde bei plenigo an (%s) …", LOGIN_URL)
+    log.info("Melde an (Login-iframe plenigo/Frisbii, %s) …", LOGIN_URL)
     page.goto(LOGIN_URL, wait_until="domcontentloaded", timeout=45000)
 
-    frame = page.frame_locator("iframe[src*='plenigo.com']")
-    user_field = frame.locator("#login_form__username")
+    frame = page.frame_locator("iframe[src*='plenigo.com'], iframe[src*='frisbii-media.com']")
+    user_field = frame.locator("#login_form__username, #email")
     try:
         user_field.wait_for(state="visible", timeout=30000)
     except PWTimeout:
-        raise LoginFailed("plenigo-Login-iframe / Formularfeld nicht gefunden – Flow evtl. geaendert")
+        raise LoginFailed("Login-iframe (plenigo/Frisbii) / Formularfeld nicht gefunden – Flow evtl. geaendert")
 
     user_field.fill(username)
-    frame.locator("#login_form__password").fill(password)
+    frame.locator("#login_form__password, #password").fill(password)
     try:
-        frame.locator("#login_form_rememberMe").check(timeout=3000)
+        frame.locator("#login_form_rememberMe, #rememberMe1").check(timeout=3000)
     except PWTimeout:
         pass  # Checkbox optional
 

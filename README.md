@@ -5,8 +5,10 @@ Lädt die tägliche PDF-Ausgabe der Walsroder Zeitung hinter der plenigo-Paywall
 
 ## Wie der Login funktioniert
 
-`mein.wz-net.de/login` bettet ein Login-Formular von **plenigo**
-(`checkout.plenigo.com`) in einem iframe ein. Nach erfolgreicher Anmeldung
+`mein.wz-net.de/login` bettet ein Login-Formular in einem iframe ein. Der
+Anbieter heisst inzwischen **Frisbii Media** (`sso-v3.frisbii-media.com`,
+früher **plenigo**, `checkout.plenigo.com`); das Script unterstützt beide
+Varianten. Nach erfolgreicher Anmeldung
 setzt `mein.wz-net.de` Session-Cookies für die Domain `wz-net.de`, mit denen
 dann `www.wz-net.de/.../epaper/...pdf` abrufbar ist.
 
@@ -137,15 +139,18 @@ CRON_TZ=Europe/Berlin
 
 ## Wenn der Login bricht
 
-Ändert plenigo das Formular, schlägt der Login mit Exit 3 fehl. Dann:
+Ändert der Login-Anbieter (Frisbii Media, früher plenigo) das Formular, schlägt der Login mit Exit 3 fehl. Dann:
 
 ```bash
 .venv/bin/python download_wz.py --headful -v
 ```
 
 und im sichtbaren Browser prüfen, welche Feld-IDs/Buttons sich geändert haben
-(`_do_login()` in `download_wz.py` anpassen: aktuell `#login_form__username`,
-`#login_form__password`, Button „Anmelden").
+(`_do_login()` in `download_wz.py` anpassen). Aktuelle Feld-IDs bei Frisbii
+Media (`sso-v3.frisbii-media.com`): `#email`, `#password`, `#rememberMe1`,
+Button „Anmelden". Die alten plenigo-IDs (`#login_form__username`,
+`#login_form__password`, `#login_form_rememberMe`) sind als Fallback weiter
+in den Selektoren enthalten.
 
 `--headful` braucht eine grafische Umgebung. Auf einem Server ohne Desktop
 entweder lokal auf dem Arbeitsrechner testen oder mit `xvfb` starten:
