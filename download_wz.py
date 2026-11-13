@@ -316,7 +316,7 @@ def main(argv=None) -> int:
     webdav_base = need("NC_WEBDAV_URL")      # z.B. https://cloud.example.de/remote.php/dav/files/sascha
     nc_user = need("NC_USERNAME")
     nc_pass = need("NC_PASSWORD")            # App-Passwort empfohlen
-    nc_dir_tmpl = os.environ.get("NC_TARGET_DIR", "Walsroder Zeitung/{year}")
+    nc_dir_tmpl = os.environ.get("NC_TARGET_DIR", "WZ")
     nc_dir = nc_dir_tmpl.format(year=target.strftime("%Y"), month=target.strftime("%m"))
 
     try:

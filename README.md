@@ -74,7 +74,8 @@ Pflichtfelder: `WZ_USERNAME`, `WZ_PASSWORD`, `NC_WEBDAV_URL`, `NC_USERNAME`, `NC
 - **`NC_WEBDAV_URL`**: `https://<deine-cloud>/remote.php/dav/files/<NC_USERNAME>`
 - **`NC_PASSWORD`**: in Nextcloud unter *Einstellungen → Sicherheit →
   „App-Passwort erstellen"* erzeugen (nicht dein Hauptpasswort).
-- **`NC_TARGET_DIR`**: z. B. `Walsroder Zeitung/{year}` – Ordner werden
+- **`NC_TARGET_DIR`**: Zielordner in der Nextcloud, Default `WZ`. Platzhalter
+  `{year}` und `{month}` möglich, z. B. `WZ/{year}` – Ordner werden
   automatisch angelegt.
 
 ## Test
