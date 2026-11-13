@@ -61,6 +61,50 @@ sudo -u wz .venv/bin/playwright install chromium
 > `.venv/bin/playwright install --with-deps chromium` (zieht die System-Libs
 > per apt gleich mit). `--with-deps` braucht zwingend root.
 
+## Aktualisieren auf dem Server
+
+Voraussetzungen wie bei der Installation: Das Repo liegt unter `/opt/wz-epaper`
+und gehört dem System-User `wz` (ohne Login-Shell), das virtualenv liegt unter
+`/opt/wz-epaper/.venv`. Alle Befehle auf dem Server mit `sudo` ausführen.
+
+**1. Neueste Version holen.** Das verwirft lokale Änderungen an
+`download_wz.py`, z. B. Hotfixes, die inzwischen im Repo sind:
+
+```bash
+sudo -u wz git -C /opt/wz-epaper checkout -- download_wz.py
+sudo -u wz git -C /opt/wz-epaper pull
+sudo -u wz git -C /opt/wz-epaper log -1 --oneline
+```
+
+**2. Nur falls sich `requirements.txt` geändert hat:** Abhängigkeiten
+aktualisieren.
+
+```bash
+cd /opt/wz-epaper && sudo -u wz -H .venv/bin/pip install -q -r requirements.txt
+```
+
+Wurde dabei Playwright aktualisiert, auch den Browser nachziehen:
+
+```bash
+sudo /opt/wz-epaper/.venv/bin/playwright install-deps chromium
+sudo -u wz -H /opt/wz-epaper/.venv/bin/playwright install chromium
+```
+
+**3. Testen** (nur Download, ohne Upload):
+
+```bash
+cd /opt/wz-epaper && sudo -u wz -H .venv/bin/python download_wz.py --no-upload -v 2>&1 | tail -20
+```
+
+Erwartet: „Login ok", danach „HTTP 200 (application/pdf …)" und „PDF geladen".
+Mit Upload: denselben Befehl ohne `--no-upload`.
+
+> `git` muss als User `wz` laufen (`sudo -u wz`), weil das Verzeichnis `wz`
+> gehört. Als anderer User meldet git „Not a git repository".
+>
+> Der Cronjob (`crontab -u wz -l`) muss nach einem Update nicht angepasst
+> werden.
+
 ## Konfiguration
 
 ```bash
